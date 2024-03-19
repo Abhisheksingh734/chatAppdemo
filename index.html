@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket.IO Chat</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      #chat-box {
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        width: 80%;
+        min-width: 300px;
+        min-height: 500px; /* Set minimum height */
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #message-box {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px;
+      }
+
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      #messages li {
+        padding: 10px 20px;
+        word-wrap: break-word;
+      }
+
+      #messages li:nth-child(odd) {
+        background-color: #f2f2f2;
+      }
+
+      #input-container {
+        display: flex;
+        align-items: center;
+        background-color: #f5f5f5;
+        padding: 10px;
+      }
+
+      #input {
+        flex-grow: 1;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 15px;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+
+      #input:focus {
+        outline: none;
+      }
+
+      #send-button {
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #send-button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-box">
+      <div id="message-box">
+        <ul id="messages"></ul>
+      </div>
+      <div id="input-container">
+        <input
+          id="input"
+          autocomplete="off"
+          placeholder="Type your message..."
+        />
+        <button id="send-button">Send</button>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const input = document.getElementById("input");
+      const messages = document.getElementById("messages");
+      const sendButton = document.getElementById("send-button");
+
+      sendButton.addEventListener("click", () => {
+        sendMessage();
+      });
+
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      function sendMessage() {
+        const message = input.value.trim();
+        if (message !== "") {
+          socket.emit("chat message", message);
+          input.value = "";
+        }
+      }
+
+      socket.on("chat message", (msg) => {
+        const item = document.createElement("li");
+        item.textContent = msg;
+        messages.appendChild(item);
+        messages.scrollTop = messages.scrollHeight;
+      });
+    </script>
+  </body>
+</html>
